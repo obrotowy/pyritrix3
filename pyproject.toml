@@ -11,6 +11,7 @@ authors = [
 description = "A simple wrapper around Heritrix3' REST API"
 readme = "README.md"
 requires-python = ">=3.9"
+dependencies = [ "requests>=2.34.2" ]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent",
