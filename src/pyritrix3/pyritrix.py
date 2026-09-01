@@ -16,13 +16,16 @@ class pyritrix():
         self.base_url = f"https://{hostname}:{port}/"
         self.jobs = JobsEndpoint(self)
 
-    def get(self, path: str, **kwargs):
+    def get(self, path: str, **kwargs) -> requests.Response:
         return self.session.get(
             urljoin(self.base_url, path), headers=common_headers, verify=self.verify_certs, **kwargs)
 
-    def post(self, path: str, **kwargs):
+    def post(self, path: str, **kwargs) -> requests.Response:
         return self.session.post(
             urljoin(self.base_url, path), headers=common_headers, verify=self.verify_certs, **kwargs)
+
+    def post(self, path: str, **kwargs) -> requests.Response:
+        return self.session.put(urljoin(self.base_url, path), headers=common_headers, verify=self.verify_certs, **kwargs)
 
     def status(self) -> dict:
         """
