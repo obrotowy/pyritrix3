@@ -24,7 +24,7 @@ class pyritrix():
         return self.session.post(
             urljoin(self.base_url, path), headers=common_headers, verify=self.verify_certs, **kwargs)
 
-    def post(self, path: str, **kwargs) -> requests.Response:
+    def put(self, path: str, **kwargs) -> requests.Response:
         return self.session.put(urljoin(self.base_url, path), headers=common_headers, verify=self.verify_certs, **kwargs)
 
     def status(self) -> dict:

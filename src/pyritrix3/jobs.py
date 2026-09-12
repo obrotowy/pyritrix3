@@ -159,5 +159,6 @@ class JobsEndpoint:
         return self._client.post(f"/engine/job/{jobname}/script", data=data).json()
 
     def submit_config_file(self, jobname: str, file: IO):
-        response = self._client.put(f"/engine/job/{jobname}/crawler-beans.cxml", data=file)
-        assert response.status_code == 200
+        response = self._client.put(
+            f"/engine/job/{jobname}/jobdir/crawler-beans.cxml", data=file)
+        return response
