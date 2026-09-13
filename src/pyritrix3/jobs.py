@@ -24,7 +24,6 @@ class JobsEndpoint:
             "profile": profile  # It's fine, requests will omit this if profile=None
         }
         response = self._client.post("/engine", data=data)
-        assert response.status_code == 200
         return response.json()
 
     def add(self, addpath: str) -> dict:
