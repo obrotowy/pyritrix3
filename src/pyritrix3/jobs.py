@@ -58,7 +58,7 @@ class JobsEndpoint:
         response = self._client.post(f"/engine/job/{jobname}", data=data)
         return response.json()
 
-    def launch(self, jobname: str, checkpoint: str) -> dict:
+    def launch(self, jobname: str, checkpoint: str | None = None) -> dict:
         """
         Launches a crawl job. The job can be launched in the “paused” state or the “unpaused” state.
         If launched in the “unpaused” state the job will immediately begin crawling.
