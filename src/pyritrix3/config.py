@@ -1,22 +1,30 @@
 from lxml import etree
+from io import BytesIO
+
 
 class config():
     def __init__(self):
         pass
 
     @staticmethod
-    def generate(overrides: dict, output_path: str) -> None:
+    def generate(overrides: dict, output_path=None) -> BytesIO:
         parser = etree.XMLParser(remove_blank_text=False)
         root = etree.fromstring(_CFG_TEMPLATE.strip().encode("UTF-8"), parser)
         tree = etree.ElementTree(root)
 
         bean = root.find(f".//{{{NS}}}bean[@id='simpleOverrides']")
-        value_el = bean.find(f".//{{{NS}}}property[@name='properties']/{{{NS}}}value")
+        value_el = bean.find(
+            f".//{{{NS}}}property[@name='properties']/{{{NS}}}value")
 
         lines = [f"{key}={val}" for key, val in overrides.items()]
         value_el.text = "\n".join(lines)
+        output = BytesIO()
+        tree.write(output, encoding="UTF-8", xml_declaration=True)
+        if output_path:
+            tree.write(output_path, encoding="UTF-8", xml_declaration=True)
+        output.seek(0)
+        return output
 
-        tree.write(output_path, encoding="UTF-8", xml_declaration=True)
 
 NS = "http://www.springframework.org/schema/beans"
 
