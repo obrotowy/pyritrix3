@@ -45,7 +45,11 @@ class JobsEndpoint:
         """
         Returns status information and statistics about the chosen job.
         """
-        return self._client.get(f"/engine/job/{jobname}").json()
+        resp = self._client.get(f"/engine/job/{jobname}")
+        if resp.status_code == 200:
+            return resp.json()
+        else:
+            return None
 
     def build(self, jobname: str) -> dict:
         """
