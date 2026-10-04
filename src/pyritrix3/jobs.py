@@ -1,8 +1,15 @@
-from typing import TYPE_CHECKING, IO
+from typing import TYPE_CHECKING, IO, List
+from dataclasses import dataclass
+from urllib.parse import urljoin
+from io import BytesIO
 
 if TYPE_CHECKING:
     from .pyritrix import pyritrix
 
+@dataclass
+class WarcFile:
+  name: str
+  data: bytes
 
 class JobsEndpoint:
     def __init__(self, client: pyritrix):
@@ -165,3 +172,32 @@ class JobsEndpoint:
         response = self._client.put(
             f"/engine/job/{jobname}/jobdir/crawler-beans.cxml", data=file)
         return response
+
+    def download_warcs(self, jobname: str) -> list[WarcFile]:
+        warcs = []
+        for name in sorted(self._list_jobdir(jobname, "latest/warcs/")):
+            if not name.endswith(".warc.gz"):
+                continue
+            resp = self._get_jobdir(jobname, f"latest/warcs/{name}", stream=True)
+            resp.raise_for_status()
+            buffer = BytesIO()
+            for chunk in resp.iter_content(chunk_size=65536):
+                buffer.write(chunk)
+            warcs.append(WarcFile(name, buffer.getvalue()))
+        return warcs
+
+    def _get_jobdir(self, jobname: str, relpath: str, **kwargs):
+        url = urljoin(self._client.base_url, f"engine/job/{jobname}/jobdir/{relpath}")
+        return self._client.session.get(url, verify=self._client.verify_certs, **kwargs)
+
+    def _list_jobdir(self, jobname: str, relpath: str) -> List[str]:
+        resp = self._get_jobdir(jobname, relpath, headers={"Accept": "text/uri-list"})
+        if resp.status_code ==404:
+            return []
+        resp.raise_for_status()
+        entries = []
+        for line in resp.text.splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                entries.append(line.rstrip("/").rsplit("/", 1)[-1])
+        return entries
